@@ -7,5 +7,12 @@
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="show_notes">Show notes</string>
     <string name="add_note">Add note</string>
+    <string name="title_activity_note_details">Details</string>
+    <string name="note_title">note title</string>
+    <string name="note_content">note content</string>
+    <string name="btn_save">Save</string>
+    <string name="btn_cancel">Cancel</string>
+    <string name="btn_delete">Delete</string>
+    <string name="title_activity_calendar">Organizer</string>
 
 </resources>

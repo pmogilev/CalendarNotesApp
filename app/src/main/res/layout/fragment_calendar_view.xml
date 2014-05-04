@@ -5,31 +5,40 @@
     tools:context="tk.calendar.app.CalendarViewFragment">
 
     <!--Single child for a framelayout -->
-    <LinearLayout android:orientation="vertical" android:weightSum="10" android:layout_width="match_parent" android:layout_height="match_parent">
+    <LinearLayout android:orientation="vertical"
+                  android:weightSum="10"
+                  android:layout_width="match_parent"
+                  android:layout_height="match_parent">
 
 
         <CalendarView
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
-
-                android:layout_weight="6"
+                android:layout_weight="5"
                 android:id="@+id/calendarView"
                 android:layout_gravity="center"/>
 
         <Button
                 android:layout_width="match_parent"
+                android:visibility="gone"
                 android:id="@+id/btnGetNotes"
                 android:text="@string/show_notes"
                 android:layout_height="wrap_content"/>
         <Button
                 android:id="@+id/btnAddNote"
                 android:text="@string/add_note"
+                style="?android:textAppearanceSmall"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"/>
-        <TextView
-                android:id="@+id/txtNotes"
+
+        <ListView
+                android:id="@+id/listNotes"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
+                android:layout_weight="4"
+                android:layout_height="0dp"
+               >
+        </ListView>
+
 
     </LinearLayout>
 

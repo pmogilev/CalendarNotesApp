@@ -2,16 +2,15 @@ package tk.calendar.app;
 
 import android.app.Activity;
 import android.app.Fragment;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.CalendarView;
-import android.widget.DatePicker;
-import android.widget.TextView;
+import android.widget.*;
 
+import java.lang.reflect.Array;
 import java.util.Date;
 import java.util.List;
 
@@ -31,11 +30,15 @@ public class CalendarViewFragment extends Fragment implements CalendarAsyncQuery
 
     private static final String TAG = CalendarViewFragment.class.getSimpleName();
     private OnFragmentInteractionListener mListener;
-    TextView mNotesSize;
     CalendarAsyncQueryHandler mHandler;
     CalendarView mCalendar;
     //Hold selected date
     String mSelectedDate;
+    //List of notes
+    ListView mNotes;
+    //Notes Adapter
+    NotesArrayAdapter mAdapter;
+
 
     /**
      * Use this factory method to create a new instance of
@@ -67,6 +70,7 @@ public class CalendarViewFragment extends Fragment implements CalendarAsyncQuery
         }
 
         mHandler = new CalendarAsyncQueryHandler(getActivity(), this);
+        mAdapter = new NotesArrayAdapter(getActivity(), new Note[]{ new Note("aaa", "bbbb", "ccc", new Long(2))});
     }
 
     @Override
@@ -74,8 +78,8 @@ public class CalendarViewFragment extends Fragment implements CalendarAsyncQuery
                              Bundle savedInstanceState) {
 
         View root = inflater.inflate(R.layout.fragment_calendar_view, container, false);
-
-        mNotesSize = (TextView) root.findViewById(R.id.txtNotes);
+        mNotes = (ListView) root.findViewById(R.id.listNotes);
+        mNotes.setAdapter(mAdapter);
         Button btnGetAll = (Button) root.findViewById(R.id.btnGetNotes);
         Button btnAddNote = (Button) root.findViewById(R.id.btnAddNote);
 
@@ -93,6 +97,10 @@ public class CalendarViewFragment extends Fragment implements CalendarAsyncQuery
             public void onClick(View v) {
                 Log.d(TAG, "Create a new note");
                 String title = "New Note " + mSelectedDate;
+
+                Intent i = new Intent();
+                startActivityForResult(i, 0);
+
                 mHandler.createNote(title, "This is a note ", mSelectedDate);
             }
         });
@@ -134,10 +142,9 @@ public class CalendarViewFragment extends Fragment implements CalendarAsyncQuery
     //callback on AsyncHandler
     @Override
     public void onQueryComplete(List<Note> notes) {
-
-        String numOfNotes = String.valueOf(notes.size());
-        mNotesSize.setText(numOfNotes);
         Log.d(TAG, "onQueryComplete() size " + notes.size());
+        mAdapter = new NotesArrayAdapter(getActivity(), notes.toArray(new Note[notes.size()]));
+        mNotes.setAdapter(mAdapter);
     }
 
     //callback on AsyncHandler

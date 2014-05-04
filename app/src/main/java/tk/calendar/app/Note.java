@@ -21,4 +21,22 @@ public class Note {
         this.mContent = content;
         this.mID = id;
     }
+
+    public String getTitle() {
+        return mTitle;
+    }
+
+    public String getDate(){
+        return mDate;
+    }
+
+    public String getContent(){
+        return mContent;
+    }
+
+    public Long getID(){
+        return mID;
+    }
+
+
 }
