@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CalendarView;
 import android.widget.DatePicker;
+import android.widget.TextView;
 
 import java.util.Date;
 import java.util.List;
@@ -30,6 +31,7 @@ public class CalendarViewFragment extends Fragment implements CalendarAsyncQuery
 
     private static final String TAG = CalendarViewFragment.class.getSimpleName();
     private OnFragmentInteractionListener mListener;
+    TextView mNotesSize;
     CalendarAsyncQueryHandler mHandler;
     CalendarView mCalendar;
     //Hold selected date
@@ -73,6 +75,7 @@ public class CalendarViewFragment extends Fragment implements CalendarAsyncQuery
 
         View root = inflater.inflate(R.layout.fragment_calendar_view, container, false);
 
+        mNotesSize = (TextView) root.findViewById(R.id.txtNotes);
         Button btnGetAll = (Button) root.findViewById(R.id.btnGetNotes);
         Button btnAddNote = (Button) root.findViewById(R.id.btnAddNote);
 
@@ -94,8 +97,11 @@ public class CalendarViewFragment extends Fragment implements CalendarAsyncQuery
             }
         });
 
+        //initialize the calendarview and fetch notes
         mCalendar = (CalendarView) root.findViewById(R.id.calendarView);
         mCalendar.setOnDateChangeListener(this);
+        mSelectedDate = Utils.convertDateToKey(new Date());
+        mHandler.getNotesByKey(mSelectedDate);
 
         // Inflate the layout for this fragment
         return root ;
@@ -128,6 +134,9 @@ public class CalendarViewFragment extends Fragment implements CalendarAsyncQuery
     //callback on AsyncHandler
     @Override
     public void onQueryComplete(List<Note> notes) {
+
+        String numOfNotes = String.valueOf(notes.size());
+        mNotesSize.setText(numOfNotes);
         Log.d(TAG, "onQueryComplete() size " + notes.size());
     }
 
@@ -135,6 +144,9 @@ public class CalendarViewFragment extends Fragment implements CalendarAsyncQuery
     @Override
     public void onInsertComplete(boolean result) {
         Log.d(TAG, "onInsertComplete() result " + result);
+        if(mHandler != null){
+            mHandler.getNotesByKey(mSelectedDate);
+        }
     }
 
     //callback on AsyncHandler

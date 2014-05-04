@@ -26,6 +26,10 @@
                 android:text="@string/add_note"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"/>
+        <TextView
+                android:id="@+id/txtNotes"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
 
     </LinearLayout>
 
