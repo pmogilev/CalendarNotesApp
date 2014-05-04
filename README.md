@@ -1,7 +1,6 @@
-CalendarNotesApp
+Tiny Orginizer App 
 ================
-Android Open Source Application 
-Contains CalendarView and Notes data base
+Contains Calendarand Notes.
 
 
 About me 
