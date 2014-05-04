@@ -6,7 +6,8 @@ Contains CalendarView and Notes data base
 
 About me 
 =================
-A software engineer, I live in the Bay Area and enjoy weahter.
-I like Google, like Android, like open source, like doing something interesting and exciting :)
+A software engineer in the Bay Area,
+I like open source, I like Google and Android.
+Enojoy doing something interesting and exciting! :)
 
 
