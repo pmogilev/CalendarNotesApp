@@ -19,7 +19,7 @@ public class NotesTable {
     public static final String COLUMN_ATTACHED_FILE = "attachments";
 
     public static final String[] COLUMNS = {COLUMN_DATE, COLUMN_CREATED, COLUMN_CONTENT,
-                COLUMN_ATTACHED_FILE, COLUMN_REMIND, COLUMN_REMIND, COLUMN_EDITED, COLUMN_ID};
+                COLUMN_ATTACHED_FILE, COLUMN_REMIND, COLUMN_TITLE, COLUMN_EDITED, COLUMN_ID};
 
 
     // Database creation sql statement

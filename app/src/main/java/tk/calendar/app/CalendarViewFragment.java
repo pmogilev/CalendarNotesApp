@@ -2,14 +2,17 @@ package tk.calendar.app;
 
 import android.app.Activity;
 import android.app.Fragment;
-import android.database.Cursor;
-import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.CalendarView;
+import android.widget.DatePicker;
 
+import java.util.Date;
+import java.util.List;
 
 
 /**
@@ -22,11 +25,15 @@ import android.view.ViewGroup;
  * create an instance of this fragment.
  *
  */
-public class CalendarViewFragment extends Fragment implements CalendarAsyncQueryHandler.AsyncQueryListener {
+public class CalendarViewFragment extends Fragment implements CalendarAsyncQueryHandler.AsyncQueryListener, CalendarView.OnDateChangeListener {
 
 
     private static final String TAG = CalendarViewFragment.class.getSimpleName();
     private OnFragmentInteractionListener mListener;
+    CalendarAsyncQueryHandler mHandler;
+    CalendarView mCalendar;
+    //Hold selected date
+    String mSelectedDate;
 
     /**
      * Use this factory method to create a new instance of
@@ -57,18 +64,45 @@ public class CalendarViewFragment extends Fragment implements CalendarAsyncQuery
 //            mParam2 = getArguments().getString(ARG_PARAM2);
         }
 
-        CalendarAsyncQueryHandler cHander = new CalendarAsyncQueryHandler(getActivity(), this);
+        mHandler = new CalendarAsyncQueryHandler(getActivity(), this);
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
+        View root = inflater.inflate(R.layout.fragment_calendar_view, container, false);
+
+        Button btnGetAll = (Button) root.findViewById(R.id.btnGetNotes);
+        Button btnAddNote = (Button) root.findViewById(R.id.btnAddNote);
+
+        //get all notes
+        btnGetAll.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.d(TAG, "Get all notes button clicked");
+                mHandler.getAllNotes();
+            }
+        });
+        //create a new note button
+        btnAddNote.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.d(TAG, "Create a new note");
+                String title = "New Note " + mSelectedDate;
+                mHandler.createNote(title, "This is a note ", mSelectedDate);
+            }
+        });
+
+        mCalendar = (CalendarView) root.findViewById(R.id.calendarView);
+        mCalendar.setOnDateChangeListener(this);
+
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_calendar_view, container, false);
+        return root ;
     }
 
     // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed(Uri uri) {
+    public void onButtonPressed() {
         if (mListener != null) {
             mListener.onFragmentInteraction();
         }
@@ -91,10 +125,39 @@ public class CalendarViewFragment extends Fragment implements CalendarAsyncQuery
         mListener = null;
     }
 
+    //callback on AsyncHandler
     @Override
-    public void onQueryComplete(int token, Object cookie, Cursor cursor) {
-        Log.d(TAG, "onQueryComplete()");
+    public void onQueryComplete(List<Note> notes) {
+        Log.d(TAG, "onQueryComplete() size " + notes.size());
     }
+
+    //callback on AsyncHandler
+    @Override
+    public void onInsertComplete(boolean result) {
+        Log.d(TAG, "onInsertComplete() result " + result);
+    }
+
+    //callback on AsyncHandler
+    @Override
+    public void onUpdateComplete(boolean result) {
+        Log.d(TAG, "onUpdateComplete() result " + result);
+    }
+
+    //callback on AsyncHandler
+    @Override
+    public void onDeleteComplete(boolean result) {
+        Log.d(TAG, "onDeleteComplete() result "+ result);
+    }
+
+    @Override
+    public void onSelectedDayChange(CalendarView view, int year, int month, int dayOfMonth) {
+
+        mSelectedDate = Utils.convertDateToKey(year, month, dayOfMonth);
+        if(mHandler != null){
+            mHandler.getNotesByKey(mSelectedDate);
+        }
+    }
+
 
     /**
      * This interface must be implemented by activities that contain this

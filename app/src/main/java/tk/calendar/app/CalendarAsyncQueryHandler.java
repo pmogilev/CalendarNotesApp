@@ -1,7 +1,10 @@
 package tk.calendar.app;
 
 import android.content.AsyncQueryHandler;
+
+import java.util.ArrayList;
 import java.util.Date;
+
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -12,14 +15,15 @@ import tk.calendar.app.notes.NotesContentProvider;
 import tk.calendar.app.notes.NotesTable;
 
 import java.lang.ref.WeakReference;
+import java.util.List;
 
 /**
  * Created by Pasha on 5/3/14.
- *
+ * <p/>
  * This is more abstract {@link AsyncQueryHandler} that helps keep a
  * {@link WeakReference} back to a listener. Will properly close any
  * {@link Cursor} if the listener ceases to exist.
- * <p>
+ * <p/>
  * This pattern can be used to perform background queries without leaking
  * {@link Context} objects.
  */
@@ -38,7 +42,7 @@ public class CalendarAsyncQueryHandler extends AsyncQueryHandler {
 
 
     // Projection array.
-    public static final String[] EVENT_PROJECTION = new String[] {
+    public static final String[] EVENT_PROJECTION = new String[]{
             CalendarContract.Calendars._ID,                           // 0
             CalendarContract.Calendars.ACCOUNT_NAME,                  // 1
             CalendarContract.Calendars.CALENDAR_DISPLAY_NAME,         // 2
@@ -58,11 +62,25 @@ public class CalendarAsyncQueryHandler extends AsyncQueryHandler {
             NotesTable.COLUMN_TITLE
     };
 
+    private static final int NOTE_PROJECTION_ID = 0;
+    private static final int NOTE_PROJECTION_DATE = 1;
+    private static final int NOTE_PROJECTION_CONTENT = 2;
+    private static final int NOTE_PROJECTION_TITLE = 3;
+
+
+
     /**
      * Interface to listen for completed query operations.
      */
     public interface AsyncQueryListener {
-        void onQueryComplete(int token, Object cookie, Cursor cursor);
+        void onQueryComplete(List<Note> notes);
+
+        void onInsertComplete(boolean result);
+
+        void onUpdateComplete(boolean result);
+
+        void onDeleteComplete(boolean result);
+
     }
 
     public CalendarAsyncQueryHandler(Context context, AsyncQueryListener listener) {
@@ -78,34 +96,62 @@ public class CalendarAsyncQueryHandler extends AsyncQueryHandler {
         mListener = new WeakReference<AsyncQueryListener>(listener);
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected void onQueryComplete(int token, Object cookie, Cursor cursor) {
+
+        switch (token) {
+            case GET_CALENDARS:
+                getCalendarsResult(cursor);
+                break;
+            case GET_NOTES:
+                getNotesResult(cursor);
+            default:
+                break;
+        }
+
+        if (cursor != null) {
+            cursor.close();
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void onInsertComplete(int token, Object cookie, Uri uri) {
+
         final AsyncQueryListener listener = mListener.get();
 
-        switch(token){
-            case GET_CALENDARS:
-                getUserCalendars(cursor);
-                break;
+        switch (token) {
             case CREATE_NOTE:
-                getNote(cursor);
+                getNote(uri);
             default:
                 break;
         }
 
         if (listener != null) {
-            listener.onQueryComplete(token, cookie, cursor);
-        } else if (cursor != null) {
-            cursor.close();
+            listener.onInsertComplete(true);
         }
 
     }
 
-    private void getNote(Cursor cursor) {
-        //TODO : validate note if created
+    /**
+     * Get Note by Uri
+     * @param uri
+     */
+    private void getNote(Uri uri) {
+        //
     }
 
-    private void getUserCalendars(Cursor cursor) {
+    /**
+     * Future feature - fetch calendars and sync with a local calendar
+     *
+     * @param cursor
+     */
+    private void getCalendarsResult(Cursor cursor) {
 
         while (cursor.moveToNext()) {
             long calID = 0;
@@ -120,35 +166,97 @@ public class CalendarAsyncQueryHandler extends AsyncQueryHandler {
             ownerName = cursor.getString(PROJECTION_OWNER_ACCOUNT_INDEX);
             Log.d(TAG, "index " + calID + " display " + displayName + " account " + accountName + " owner " + ownerName);
         }
+    }
 
+
+    /**
+     * Reponse from a QueryProvider
+     *
+     * @param cursor
+     */
+    private void getNotesResult(Cursor cursor) {
+
+        ArrayList<Note> notes = new ArrayList<Note>();
+
+        if (cursor != null) {
+            while (cursor.moveToNext()) {
+                long noteID = 0;
+                String title, content, date;
+
+                // Get the field values
+                noteID = cursor.getLong(NOTE_PROJECTION_ID);
+                title = cursor.getString(NOTE_PROJECTION_TITLE);
+                content = cursor.getString(NOTE_PROJECTION_CONTENT);
+                date = cursor.getString(NOTE_PROJECTION_DATE);
+
+                notes.add(new Note(date, title, content, noteID));
+
+                Log.d(TAG, "index " + noteID + " display " + title + " account " + content + " owner " + date);
+            }
+        }
+
+        final AsyncQueryListener listener = mListener.get();
+
+        if (listener != null) {
+            listener.onQueryComplete(notes);
+        }
     }
 
     /**
+     * Get Calendars for this user
      *
      * @param account account name :
-     *
      * @param type
      * @param owner
      */
-    public void getCalendars(String account, String type, String owner ){
+    public void getCalendars(String account, String type, String owner) {
 
         Uri uri = CalendarContract.Calendars.CONTENT_URI;
         String selection = "((" + CalendarContract.Calendars.ACCOUNT_NAME + " = ?) AND ("
                 + CalendarContract.Calendars.ACCOUNT_TYPE + " = ?) AND ("
                 + CalendarContract.Calendars.OWNER_ACCOUNT + " = ?))";
-        String[] selectionArgs = new String[] {account,type,type};
+        String[] selectionArgs = new String[]{account, type, type};
 
         startQuery(GET_CALENDARS, null, uri, EVENT_PROJECTION, selection, selectionArgs, null);
     }
 
 
-    public void getLocalNotes(){
-        }
+    public void getAllNotes() {
+        Uri uri = NotesContentProvider.CONTENT_URI;
+        String selection = null;
+        String[] selectionArgs = null;
+        startQuery(GET_NOTES, null, uri, NOTE_PROJECTION, selection, selectionArgs, null);
+    }
 
-    public void createNote(){
+
+    /**
+     *
+     * @param key - Date value
+     */
+    public void getNotesByKey(String key) {
+
+        Uri uri = NotesContentProvider.CONTENT_URI;
+        String selection = "((" + NotesTable.COLUMN_DATE + " = ?))";
+        String[] selectionArgs = new String[]{key};
+
+        startQuery(GET_NOTES, null, uri, NOTE_PROJECTION, selection, selectionArgs, null);
+
+    }
+
+
+    /**
+     * Create a new note
+     *
+     * @param title
+     * @param content
+     * @param date
+     */
+    public void createNote(String title, String content, String date) {
 
         ContentValues values = new ContentValues();
-        values.put(NotesTable.COLUMN_TITLE, "Note 1");
+        values.put(NotesTable.COLUMN_TITLE, title);
+        values.put(NotesTable.COLUMN_DATE, date);
+        values.put(NotesTable.COLUMN_CONTENT, content);
         values.put(NotesTable.COLUMN_CREATED, new Date().toGMTString());
         values.put(NotesTable.COLUMN_EDITED, new Date().toGMTString());
 

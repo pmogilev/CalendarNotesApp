@@ -5,14 +5,27 @@
     tools:context="tk.calendar.app.CalendarViewFragment">
 
     <!--Single child for a framelayout -->
-    <LinearLayout android:layout_width="match_parent" android:layout_height="match_parent">
+    <LinearLayout android:orientation="vertical" android:weightSum="10" android:layout_width="match_parent" android:layout_height="match_parent">
 
 
         <CalendarView
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="0dp"
+
+                android:layout_weight="6"
                 android:id="@+id/calendarView"
                 android:layout_gravity="center"/>
+
+        <Button
+                android:layout_width="match_parent"
+                android:id="@+id/btnGetNotes"
+                android:text="@string/show_notes"
+                android:layout_height="wrap_content"/>
+        <Button
+                android:id="@+id/btnAddNote"
+                android:text="@string/add_note"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
 
     </LinearLayout>
 
