@@ -1,6 +1,6 @@
 Tiny Orginizer App 
 ================
-Contains Calendarand Notes.
+Contains Calendar and Notes.
 
 
 About me 
