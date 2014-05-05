@@ -1,6 +1,20 @@
 Tiny Orginizer App 
 ================
-Contains Calendar and Notes.
+Combines Calendar and Notes.
+
+Android components 
+================
+AsyncQueryHandler
+ContentProvider
+SQLiteOpenHelper
+Activity
+Fragment
+Loaders
+ArrayAdapter
+
+Future features 
+================
+Synchronization with local calendars 
 
 
 About me 
