@@ -13,8 +13,11 @@
     <string name="btn_save">Save</string>
     <string name="btn_cancel">Cancel</string>
     <string name="btn_delete">Delete</string>
-    <string name="title_activity_calendar">Organizer</string>
+    <string name="title_activity_calendar">Tiny organizer</string>
     <string name="action_note_in_short">title</string>
     <string name="msg_saved">Saved</string>
+    <string name="msg_failed">Please maintain a note</string>
+    <string name="msg_deleted">Deleted</string>
+    <string name="msg_not_saved">Can`t deleted, press \'Cancel\'</string>
 
 </resources>

@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -17,6 +16,12 @@ import android.widget.Toast;
 import java.util.List;
 
 
+/**
+ * Manipulation with a single note
+ * Cancel (Back)
+ * Save
+ * Delete
+ */
 public class NoteDetailsActivity extends Activity implements CalendarAsyncQueryHandler.AsyncQueryListener {
 
 
@@ -99,10 +104,10 @@ public class NoteDetailsActivity extends Activity implements CalendarAsyncQueryH
     private void attemptDelete() {
         if (mID == DEFAULT_ID) {
 
+            Toast.makeText(NoteDetailsActivity.this, getResources().getText(R.string.msg_not_saved),
+                    Toast.LENGTH_SHORT).show();
         } else {
-            Intent intent = new Intent(this, CalendarMainActivity.class);
-            startActivity(intent);
-            finish();
+            mHandler.deleteNote(mID);
         }
 
     }
@@ -186,13 +191,32 @@ public class NoteDetailsActivity extends Activity implements CalendarAsyncQueryH
             startActivity(intent);
             finish();
         } else {
-            Toast.makeText(NoteDetailsActivity.this, "Please maintain a note",
+            Toast.makeText(NoteDetailsActivity.this, getResources().getText(R.string.msg_failed),
                     Toast.LENGTH_LONG).show();
         }
     }
 
     @Override
     public void onDeleteComplete(boolean result) {
-
+        if (result) {
+            Toast.makeText(NoteDetailsActivity.this, getResources().getText(R.string.msg_deleted),
+                    Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(this, CalendarMainActivity.class);
+            startActivity(intent);
+            finish();
+        } else {
+            Toast.makeText(NoteDetailsActivity.this, getResources().getText(R.string.msg_failed),
+                    Toast.LENGTH_LONG).show();
+        }
     }
+
+    @Override
+    public void onBackPressed() {
+
+        Intent intent = new Intent(this, CalendarMainActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        startActivity(intent);
+        finish();
+    }
+
 }

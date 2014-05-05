@@ -1,4 +1,4 @@
-Tiny Orginizer App 
+Tiny Organizer App
 ================
 Combines Calendar and Notes.
 

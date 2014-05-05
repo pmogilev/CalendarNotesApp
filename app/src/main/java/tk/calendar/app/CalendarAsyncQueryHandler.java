@@ -126,7 +126,6 @@ public class CalendarAsyncQueryHandler extends AsyncQueryHandler {
     protected void onInsertComplete(int token, Object cookie, Uri uri) {
 
         final AsyncQueryListener listener = mListener.get();
-
         switch (token) {
             case CREATE_NOTE:
                 getNote(uri);
@@ -152,9 +151,29 @@ public class CalendarAsyncQueryHandler extends AsyncQueryHandler {
         }
 
         if (listener != null && result == 1) {
-            listener.onInsertComplete(true);
+            listener.onUpdateComplete(true);
         }else
-            listener.onInsertComplete(false);
+            listener.onUpdateComplete(false);
+    }
+
+    @Override
+    protected void onDeleteComplete(int token, Object cookie, int result) {
+
+        final AsyncQueryListener listener = mListener.get();
+
+        switch (token) {
+            case DELETE_NOTE:
+                Log.d(TAG, "DELETE complete");
+                break;
+            default:
+                break;
+        }
+
+        if (listener != null && result == 1) {
+            listener.onDeleteComplete(true);
+        }else
+            listener.onDeleteComplete(false);
+
     }
 
     /**
@@ -162,7 +181,7 @@ public class CalendarAsyncQueryHandler extends AsyncQueryHandler {
      * @param uri
      */
     private void getNote(Uri uri) {
-        //
+        //TODO: think about something smart to do ...
     }
 
     /**
@@ -259,7 +278,6 @@ public class CalendarAsyncQueryHandler extends AsyncQueryHandler {
         String[] selectionArgs = new String[]{key};
 
         startQuery(GET_NOTES, null, uri, NOTE_PROJECTION, selection, selectionArgs, null);
-
     }
 
 
@@ -301,6 +319,16 @@ public class CalendarAsyncQueryHandler extends AsyncQueryHandler {
         String[] selectionArgs = null;
         startUpdate(UPDATE_NOTE, null, uri, values, selection, selectionArgs);
 
+    }
+
+    /**
+     * Delete a note
+     *
+     * @param id
+     */
+    public void deleteNote(Long id) {
+        Uri uri = Uri.parse( NotesContentProvider.CONTENT_URI + "/" + id);
+        startDelete(DELETE_NOTE, null, uri, null, null);
     }
 
 }

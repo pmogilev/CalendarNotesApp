@@ -102,7 +102,40 @@ public class NotesContentProvider extends ContentProvider {
 
     @Override
     public int delete(Uri uri, String selection, String[] selectionArgs) {
-        return 0;
+
+        int rowsDeleted = 0;
+        try {
+            int uriType = sURIMatcher.match(uri);
+            SQLiteDatabase sqlDB = mDb.getWritableDatabase();
+            switch (uriType) {
+                case NOTES:
+                    rowsDeleted = sqlDB.delete(NotesTable.TABLE_NOTES, selection,
+                            selectionArgs);
+                    break;
+                case NOTEID:
+                    String id = uri.getLastPathSegment();
+                    if (TextUtils.isEmpty(selection)) {
+                        rowsDeleted = sqlDB.delete(NotesTable.TABLE_NOTES,
+                                NotesTable.COLUMN_ID + "=" + id,
+                                null);
+                    } else {
+                        rowsDeleted = sqlDB.delete(NotesTable.TABLE_NOTES,
+                                NotesTable.COLUMN_ID + "=" + id
+                                        + " and " + selection,
+                                selectionArgs
+                        );
+                    }
+                    break;
+                default:
+                    throw new IllegalArgumentException("Unknown URI: " + uri);
+            }
+            getContext().getContentResolver().notifyChange(uri, null);
+        }catch (Exception ex){
+            throw new IllegalArgumentException("Failed to delete " + ex.getMessage());
+        }
+        return rowsDeleted;
+
+
     }
 
     @Override
