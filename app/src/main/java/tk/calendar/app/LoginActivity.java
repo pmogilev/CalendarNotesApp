@@ -272,7 +272,7 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor>{
 
             try {
                 // Simulate network access.
-                Thread.sleep(5000);
+                Thread.sleep(1000);
             } catch (InterruptedException e) {
                 return false;
             }
