@@ -17,13 +17,12 @@ import java.util.List;
 
 /**
  * Created by Pasha on 5/3/14.
- *
+ * <p/>
  * Activities that contain this fragment must implement the
  * {@link CalendarViewFragment.OnFragmentInteractionListener} interface
  * to handle interaction events.
  * Use the {@link CalendarViewFragment#newInstance} factory method to
  * create an instance of this fragment.
- *
  */
 public class CalendarViewFragment extends Fragment implements CalendarAsyncQueryHandler.AsyncQueryListener, CalendarView.OnDateChangeListener {
 
@@ -57,6 +56,7 @@ public class CalendarViewFragment extends Fragment implements CalendarAsyncQuery
         fragment.setArguments(args);
         return fragment;
     }
+
     public CalendarViewFragment() {
         // Required empty public constructor
     }
@@ -70,7 +70,7 @@ public class CalendarViewFragment extends Fragment implements CalendarAsyncQuery
         }
 
         mHandler = new CalendarAsyncQueryHandler(getActivity(), this);
-        mAdapter = new NotesArrayAdapter(getActivity(), new Note[]{ new Note("aaa", "bbbb", "ccc", new Long(2))});
+        mAdapter = new NotesArrayAdapter(getActivity(), new Note[]{new Note("aaa", "bbbb", "ccc", new Long(2))});
     }
 
     @Override
@@ -79,6 +79,19 @@ public class CalendarViewFragment extends Fragment implements CalendarAsyncQuery
 
         View root = inflater.inflate(R.layout.fragment_calendar_view, container, false);
         mNotes = (ListView) root.findViewById(R.id.listNotes);
+        mNotes.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Intent intent = new Intent(getActivity(), NoteDetailsActivity.class);
+                Note n = mAdapter.getItem(position);
+                intent.putExtra("id", n.getID());
+                intent.putExtra("title", n.getTitle());
+                intent.putExtra("content", n.getContent());
+                intent.putExtra("date", n.getDate());
+                startActivity(intent);
+            }
+        });
+
         mNotes.setAdapter(mAdapter);
         Button btnGetAll = (Button) root.findViewById(R.id.btnGetNotes);
         Button btnAddNote = (Button) root.findViewById(R.id.btnAddNote);
@@ -96,12 +109,9 @@ public class CalendarViewFragment extends Fragment implements CalendarAsyncQuery
             @Override
             public void onClick(View v) {
                 Log.d(TAG, "Create a new note");
-                String title = "New Note " + mSelectedDate;
-
-                Intent i = new Intent();
-                startActivityForResult(i, 0);
-
-                mHandler.createNote(title, "This is a note ", mSelectedDate);
+                Intent i = new Intent(getActivity(), NoteDetailsActivity.class);
+                i.putExtra("date", mSelectedDate);
+                startActivity(i);
             }
         });
 
@@ -112,7 +122,7 @@ public class CalendarViewFragment extends Fragment implements CalendarAsyncQuery
         mHandler.getNotesByKey(mSelectedDate);
 
         // Inflate the layout for this fragment
-        return root ;
+        return root;
     }
 
     // TODO: Rename method, update argument and hook method into UI event
@@ -151,7 +161,7 @@ public class CalendarViewFragment extends Fragment implements CalendarAsyncQuery
     @Override
     public void onInsertComplete(boolean result) {
         Log.d(TAG, "onInsertComplete() result " + result);
-        if(mHandler != null){
+        if (mHandler != null) {
             mHandler.getNotesByKey(mSelectedDate);
         }
     }
@@ -165,14 +175,14 @@ public class CalendarViewFragment extends Fragment implements CalendarAsyncQuery
     //callback on AsyncHandler
     @Override
     public void onDeleteComplete(boolean result) {
-        Log.d(TAG, "onDeleteComplete() result "+ result);
+        Log.d(TAG, "onDeleteComplete() result " + result);
     }
 
     @Override
     public void onSelectedDayChange(CalendarView view, int year, int month, int dayOfMonth) {
 
         mSelectedDate = Utils.convertDateToKey(year, month, dayOfMonth);
-        if(mHandler != null){
+        if (mHandler != null) {
             mHandler.getNotesByKey(mSelectedDate);
         }
     }
@@ -183,7 +193,7 @@ public class CalendarViewFragment extends Fragment implements CalendarAsyncQuery
      * fragment to allow an interaction in this fragment to be communicated
      * to the activity and potentially other fragments contained in that
      * activity.
-     * <p>
+     * <p/>
      * See the Android Training lesson <a href=
      * "http://developer.android.com/training/basics/fragments/communicating.html"
      * >Communicating with Other Fragments</a> for more information.

@@ -10,6 +10,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.CalendarContract;
+import android.text.LoginFilter;
 import android.util.Log;
 import tk.calendar.app.notes.NotesContentProvider;
 import tk.calendar.app.notes.NotesTable;
@@ -66,6 +67,7 @@ public class CalendarAsyncQueryHandler extends AsyncQueryHandler {
     private static final int NOTE_PROJECTION_DATE = 1;
     private static final int NOTE_PROJECTION_CONTENT = 2;
     private static final int NOTE_PROJECTION_TITLE = 3;
+
 
 
 
@@ -135,7 +137,24 @@ public class CalendarAsyncQueryHandler extends AsyncQueryHandler {
         if (listener != null) {
             listener.onInsertComplete(true);
         }
+    }
 
+    @Override
+    protected void onUpdateComplete(int token, Object cookie, int result) {
+        final AsyncQueryListener listener = mListener.get();
+
+        switch (token) {
+            case UPDATE_NOTE:
+                Log.d(TAG, "Update complete");
+                break;
+            default:
+                break;
+        }
+
+        if (listener != null && result == 1) {
+            listener.onInsertComplete(true);
+        }else
+            listener.onInsertComplete(false);
     }
 
     /**
@@ -263,5 +282,25 @@ public class CalendarAsyncQueryHandler extends AsyncQueryHandler {
         startInsert(CREATE_NOTE, null, NotesContentProvider.CONTENT_URI, values);
     }
 
+    /**
+     * Update an existing note
+     *
+     * @param title
+     * @param content
+     * @param date
+     */
+    public void updateNote(String title, String content, String date, Long id) {
+        ContentValues values = new ContentValues();
+        values.put(NotesTable.COLUMN_TITLE, title);
+        values.put(NotesTable.COLUMN_DATE, date);
+        values.put(NotesTable.COLUMN_EDITED, new Date().toGMTString());
+        values.put(NotesTable.COLUMN_ID, id);
+        values.put(NotesTable.COLUMN_CONTENT, content);
+        Uri uri = Uri.parse( NotesContentProvider.CONTENT_URI + "/" + id);
+        String selection = null;
+        String[] selectionArgs = null;
+        startUpdate(UPDATE_NOTE, null, uri, values, selection, selectionArgs);
+
+    }
 
 }

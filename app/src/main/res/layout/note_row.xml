@@ -11,6 +11,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="6dp"
             android:lines="2"
+            android:text="Some text"
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:textStyle="bold"
             >
@@ -23,6 +24,8 @@
             android:layout_marginTop="6dp"
             android:lines="1"
             android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textStyle="italic"
+            android:text="Some date"
             >
     </TextView>
 </LinearLayout>

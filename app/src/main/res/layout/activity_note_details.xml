@@ -14,6 +14,9 @@
             android:id="@+id/etxtNoteTitleDetails"
             android:layout_width="match_parent"
             android:hint="@string/note_title"
+            android:imeActionId="@+id/title"
+            android:imeActionLabel="@string/action_note_in_short"
+            android:imeOptions="actionUnspecified"
             android:layout_height="wrap_content"/>
 
     <EditText
@@ -21,6 +24,7 @@
             android:hint="@string/note_content"
             android:layout_below="@+id/etxtNoteTitleDetails"
             android:layout_width="match_parent"
+            android:gravity="top|left"
             android:layout_height="wrap_content"
             android:lines="10"/>
 
@@ -29,7 +33,7 @@
             android:layout_below="@id/etxtNoteContentDetails"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/txtNoteDate"
+            android:id="@+id/txtNoteDateDetails"
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:textStyle="italic"
             android:text="Now"

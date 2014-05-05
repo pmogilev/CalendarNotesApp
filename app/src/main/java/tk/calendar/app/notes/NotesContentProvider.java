@@ -8,6 +8,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
+import android.text.TextUtils;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -30,6 +31,7 @@ public class NotesContentProvider extends ContentProvider {
     private static final int NOTES = 14;
     private static final int NOTEID = 15;
     private static final UriMatcher sURIMatcher = new UriMatcher(UriMatcher.NO_MATCH);
+
     static {
         sURIMatcher.addURI(AUTHORITY, BASE_PATH, NOTES);
         sURIMatcher.addURI(AUTHORITY, BASE_PATH + "/#", NOTEID);
@@ -55,6 +57,7 @@ public class NotesContentProvider extends ContentProvider {
         queryBuilder.setTables(NotesTable.TABLE_NOTES);
 
         int uriType = sURIMatcher.match(uri);
+
         switch (uriType) {
             case NOTES:
                 break;
@@ -104,7 +107,51 @@ public class NotesContentProvider extends ContentProvider {
 
     @Override
     public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
-        return 0;
+
+        int rowsUpdated = 0;
+
+        try {
+            int uriType = sURIMatcher.match(uri);
+            SQLiteDatabase sqlDB = mDb.getWritableDatabase();
+
+            switch (uriType) {
+                case NOTES:
+
+                    rowsUpdated = sqlDB.update(NotesTable.TABLE_NOTES,
+                            values,
+                            selection,
+                            selectionArgs);
+                    break;
+                case NOTEID:
+
+                    String id = uri.getLastPathSegment();
+                    if (TextUtils.isEmpty(selection)) {
+                        rowsUpdated = sqlDB.update(NotesTable.TABLE_NOTES,
+                                values,
+                                NotesTable.COLUMN_ID + "=" + id,
+                                null);
+                    }
+                    else {
+                        rowsUpdated = sqlDB.update(NotesTable.TABLE_NOTES,
+                                values,
+                                NotesTable.COLUMN_ID + "=" + id
+                                        + " and "
+                                        + selection,
+                                selectionArgs
+                        );
+                    }
+                    break;
+
+                default:
+                    throw new IllegalArgumentException("Unknown URI: " + uri);
+            }
+        } catch (Exception ex) {
+            throw new IllegalArgumentException("Update failed: " + ex.getMessage());
+        }
+        getContext().getContentResolver().notifyChange(uri, null);
+        return rowsUpdated;
+
+
     }
 
 
